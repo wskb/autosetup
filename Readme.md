@@ -1,6 +1,6 @@
 # Autosetup
 
-Scripts to set up my preferred environment, which can be run anonymously from the Internet.
+Scripts to set up my preferred environment, runnable anonymously from the Internet.
 
 ## Bash
 
