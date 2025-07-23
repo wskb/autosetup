@@ -10,7 +10,7 @@ if [[ -e "$HOME/.bashrc.wskb" ]]; then
         exit 1
     fi
 else
-    if [[ -w "$HOME" ]]; then
+    if [[ ! -w "$HOME" ]]; then
         echo "folder is not writeable: $HOME" 1>&2
         exit 1
     fi
@@ -28,7 +28,7 @@ if [[ -e "$HOME/.bashrc" ]]; then
         fi
     fi
 else
-    if [[ -w "$HOME" ]]; then
+    if [[ ! -w "$HOME" ]]; then
         echo "folder is not writeable: $HOME" 1>&2
         exit 1
     fi
@@ -46,7 +46,7 @@ if [[ -e "$HOME/.bash_profile" ]]; then
         fi
     fi
 else
-    if [[ -w "$HOME" ]]; then
+    if [[ ! -w "$HOME" ]]; then
         echo "folder is not writeable: $HOME" 1>&2
         exit 1
     fi
