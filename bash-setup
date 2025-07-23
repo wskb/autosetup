@@ -4,52 +4,37 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-if [[ -e "$HOME/.bashrc.wskb" ]]; then
-    if [[ ! -w "$HOME/.bashrc.wskb" ]]; then
-        echo "file is not writeable: $HOME/.bashrc.wskb" 1>&2
-        exit 1
-    fi
-else
-    if [[ ! -w "$HOME" ]]; then
-        echo "folder is not writeable: $HOME" 1>&2
-        exit 1
-    fi
-fi
+check_writeable () {
+    local target="$1"
+    local targetParent="$(dirname "$target")"
 
-edit_bashrc=0
-if [[ -e "$HOME/.bashrc" ]]; then
-    grep -q  ".bashrc.wskb" "$HOME/.bashrc" && rc=$? || rc=$?
-    if [[ $rc -ne 0 ]]; then
-        if [[ -w "$HOME/.bashrc" ]]; then
-            edit_bashrc=1
-        else
-            echo "file is not writeable: $HOME/.bashrc" 1>&2
+    if [[ -e "$target" ]]; then
+        if [[ ! -w "$target" ]]; then
+            echo "file is not writeable: $target" 1>&2
+            exit 1
+        fi
+    else
+        if [[ ! -w "$targetParent" ]]; then
+            echo "folder is not writeable: $targetParent" 1>&2
             exit 1
         fi
     fi
-else
-    if [[ ! -w "$HOME" ]]; then
-        echo "folder is not writeable: $HOME" 1>&2
-        exit 1
-    fi
+}
+
+check_writeable "$HOME/.bashrc.wskb"
+check_writeable "$HOME/.inputrc"
+
+edit_bashrc=0
+if [[ ( ! -e "$HOME/.bashrc" ) || ( ! grep -q  ".bashrc.wskb" "$HOME/.bashrc" ) ]]; then
+    edit_bashrc=1
+    check_writeable "$HOME/.bashrc"
 fi
 
 edit_bash_profile=0
-if [[ -e "$HOME/.bash_profile" ]]; then
-    grep -q  ".bashrc" "$HOME/.bash_profile" && rc=$? || rc=$?
-    if [[ $rc -ne 0 ]]; then
-        if [[ -w "$HOME/.bash_profile" ]]; then
-            edit_bash_profile=1
-        else
-            echo "file is not writeable: $HOME/.bash_profile" 1>&2
-            exit 1
-        fi
-    fi
-else
-    if [[ ! -w "$HOME" ]]; then
-        echo "folder is not writeable: $HOME" 1>&2
-        exit 1
-    fi
+if [[ ( ! -e "$HOME/.bash_profile" ) || ( ! grep -q  ".bashrc" "$HOME/.bash_profile" ) ]]; then
+    edit_bash_profile=1
+    edit_bashrc
+    check_writeable "$HOME/.bash_profile"
 fi
 
 if [[ $edit_bash_profile -eq 1 ]]; then
@@ -63,7 +48,6 @@ if [[ $edit_bashrc -eq 1 ]]; then
     echo >> "$HOME/.bashrc"
     echo 'source $HOME/.bashrc.wskb' >> "$HOME/.bashrc"
 fi
-
 echo "Updating $HOME/.bashrc.wskb"
 cat > "$HOME/.bashrc.wskb" <<'END_BASHRC_WSKB'
 #::# preferences
@@ -234,3 +218,9 @@ sssh () {
 _setPrompt
 alias wskb-refresh-bash="curl -sfL curl -sfL https://raw.githubusercontent.com/wskb/autosetup/refs/heads/dist/bash-setup | bash -"
 END_BASHRC_WSKB
+echo "Updating $HOME/.inputrc"
+cat > "$HOME/.inputrc" <<'END_INPUTRC'
+set completion-ignore-case on
+set show-all-if-ambiguous on
+set completion-query-items 250
+END_INPUTRC
