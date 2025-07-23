@@ -23,3 +23,4 @@ mkdir -p "$DEST"
 cp "$SCRIPT_DIR/../content/install/1-prefix.bash" "$DEST/bash-setup"
 
 copy_folder_to_file '$HOME/.bashrc.wskb' 'END_BASHRC_WSKB' "$SCRIPT_DIR/../content/bash" "$DEST/bash-setup"
+copy_folder_to_file '$HOME/.inputrc' 'END_INPUTRC' "$SCRIPT_DIR/../content/inputrc" "$DEST/bash-setup"

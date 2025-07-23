@@ -22,6 +22,7 @@ check_writeable () {
 }
 
 check_writeable "$HOME/.bashrc.wskb"
+check_writeable "$HOME/.inputrc"
 
 edit_bashrc=0
 if [[ ( ! -e "$HOME/.bashrc" ) || ( ! grep -q  ".bashrc.wskb" "$HOME/.bashrc" ) ]]; then
