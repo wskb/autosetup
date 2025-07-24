@@ -70,13 +70,13 @@ check_writeable "$HOME/.bashrc.wskb"
 check_writeable "$HOME/.inputrc"
 
 edit_bashrc=0
-if [[ ( ! -e "$HOME/.bashrc" ) || ( ! grep -q  ".bashrc.wskb" "$HOME/.bashrc" ) ]]; then
+if [[ ! -e "$HOME/.bashrc" ]] || ! grep -q  ".bashrc.wskb" "$HOME/.bashrc"; then
     edit_bashrc=1
     check_writeable "$HOME/.bashrc"
 fi
 
 edit_bash_profile=0
-if [[ ( ! -e "$HOME/.bash_profile" ) || ( ! grep -q  ".bashrc" "$HOME/.bash_profile" ) ]]; then
+if [[ ! -e "$HOME/.bash_profile" ]] || ! grep -q  ".bashrc" "$HOME/.bash_profile"; then
     edit_bash_profile=1
     edit_bashrc
     check_writeable "$HOME/.bash_profile"
