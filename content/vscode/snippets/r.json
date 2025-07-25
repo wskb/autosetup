@@ -1,0 +1,51 @@
+{
+	"R ggplot skeleton" : {
+		"prefix": "ggplot-skeleton",
+		"body": [
+			"library(tidyverse)",
+			"library(lubridate)",
+			"library(here)",
+			"",
+			"plot <- ggplot(data %>% filter(DATE >= ymd(\"20101010\"), aes(x=DATE, y=VALUE, color=CATEGORY)) + ",
+			"  geom_line() +",
+			"  scale_x_datetime() +",
+			"  scale_y_continuous(labels=scales::percent) +",
+			"  coord_cartesian(ylim=c(0.0, 0.5)) + # zoom (don't use limits as that eliminates data for mean etc.) +",
+			"  labs(",
+			"    title=\"title\",",
+			"    subtitle=\"subtitle\",",
+			"    color=\"the category\",",
+			"    y=\"the value\",",
+			"    x=\"the date\",",
+			")",
+			"print(paste0(\"Writing plot\")",
+			"ggsave(plot=plot, filename=\"plot.png\", path=here::here(\"plots\"), width=10, height=10)",
+			"warnings()"
+		]
+	},
+	"R sqlite skeleton" : {
+		"prefix": "sqlite-skeleton",
+		"body": [
+			"library(DBI)",
+			"library(here)",
+			"",
+			"dataDb <- dbConnect(RSQLite::SQLite(), here::here(\"data.db\"))"
+		]
+	},
+	"R retreive data from sqlite" : {
+		"prefix": "sqlite-retreive",
+		"body": [
+			"tbl(dataDb, sql(paste0(\"select cast(strftime('%s', SOME_TIME_STRING) as real) as SOME_TIME\", \" from x\"))) %>% collect() %>% mutate (SOME_TIME = as_datetime(SOME_TIME))"
+		]
+	},
+	"R store data in sqlite" : {
+		"prefix": "sqlite-store",
+		"body": [
+			"dbExecute(db, paste0(\"drop table if exists \",\"SOME_TABLE\"))",
+			"data <- read_csv(here::here(\"input\", \"data.csv\"), col_types=cols(.default = col_character(), SOME_INT = col_integer())) %>%",
+			"  mutate(START_TS_UNIX=as.numeric(parse_datetime(START_TS, \"%Y-%m-%d %H:%M:%OS\", locale=locale(tz=\"UTC\"))))",
+			"data <- mutate(data, REQUEST_TS = as.numeric(REQUEST_TS))",
+			"dbWriteTable(db, \"SOME_TABLE\", data, append = TRUE)"
+		]
+	}
+}

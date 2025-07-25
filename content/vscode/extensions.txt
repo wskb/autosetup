@@ -1,0 +1,6 @@
+bierner.markdown-mermaid
+daylerees.rainglow
+dotjoshjohnson.xml
+medo64.render-crlf
+mhutchie.git-graph
+redhat.vscode-yaml

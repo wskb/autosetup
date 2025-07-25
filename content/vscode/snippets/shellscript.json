@@ -1,0 +1,60 @@
+{
+	"Skeleton of a strict bash file": {
+		"prefix": "strict-skeleton",
+		"body": [
+			"#!/bin/bash",
+			"",
+			"set -o errexit",
+			"set -o nounset",
+			"set -o pipefail",
+			"set -o noclobber",
+			"",
+			"# capturing non-zero exit code (for example, grep):",
+			"# cat /tmp/doesnotexist && rc=$? || rc=$?"
+		]
+	},
+	"Date in full": {
+		"prefix": "date-in-full",
+		"body": "date '+%Y%m%d_%H%M%S'"
+	},
+	"Script directory": {
+		"prefix": "script-dir",
+		"body": "SCRIPT_DIR=\"\\$(cd \\$(dirname \"\\$0\"); pwd)\""
+	},
+	"SQLite input/output functions": {
+		"prefix": "sqlite-inout",
+		"body": [
+			"# doImport sourceFile targetTable [targetDbFile (default data.db)]",
+			"#   imports the tab-delimited file into the specified database and table",
+			"#",
+			"doImport () {",
+			"  echo \"\\$1 into \\$2 in \\${3:-data.db}\"",
+			"  sqlite3 \"\\${3:-data.db}\" <<END",
+			".mode tabs",
+			".import \"\\$1\" \"\\$2\"",
+			"END",
+			"}",
+			"# doImportCSV sourceFile targetTable [targetDbFile (default data.db)]",
+			"#   imports the csv file into the specified database and table",
+			"#",
+			"doImportCSV () {",
+			"  echo \"\\$1 into \\$2 in \\${3:-data.db}\"",
+			"  sqlite3 \"\\${3:-data.db}\" <<END",
+			".mode csv",
+			".import \"\\$1\" \"\\$2\"",
+			"END",
+			"}",
+			"# doExport targetFile sourceTable [sourceDbFile (default data.db)]",
+			"#   exports the specified database and table into the tab-delimited file",
+			"#",
+			"doExport () {",
+			"  echo \"\\$2 from \\${3:-data.db} into \\$1\"",
+			"  sqlite3 \"\\${3:-data.db}\" <<END",
+			".mode tabs",
+			".output \\$1",
+			"select * from \\$2;",
+			"END",
+			"}"
+		]
+	}
+}

@@ -23,6 +23,7 @@ jobs:
           path: dist
       - run: |
           DEST="$PWD/dist" bash src/build/bash.bash
+          DEST="$PWD/dist" bash src/build/vscode.bash
       - run: |
           cd dist
           git config user.name "github-actions[bot]"
