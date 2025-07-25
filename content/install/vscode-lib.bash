@@ -7,7 +7,6 @@ getSettingsPath () {
     else
         echo "$HOME/.config/Code/User"
     fi
- ]]
 }
 
 getExtensionsPath () {
@@ -18,7 +17,6 @@ getExtensionsPath () {
     else
         echo "$HOME/.vscode/extensions"
     fi
- ]]
 }
 
 checkForJq () {
