@@ -1,0 +1,251 @@
+
+getSettingsPath () {
+    if [[ $(uname) == *Darwin* ]]; then
+        echo "$HOME/Library/Application Support/Code/User"
+    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        echo "$HOME/AppData/Roaming/Code/User"
+    else
+        echo "$HOME/.config/Code/User"
+    fi
+ ]]
+}
+
+getExtensionsPath () {
+    if [[ $(uname) == *Darwin* ]]; then
+        echo "$HOME/.vscode/extensions"
+    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        echo "$HOME/.vscode/extensions"
+    else
+        echo "$HOME/.vscode/extensions"
+    fi
+ ]]
+}
+
+checkForJq () {
+    if ! which jq >/dev/null; then
+        echo "jq is required for this script" 1>&2
+        exit 1
+    fi
+}
+
+checkForJq
+
+if [[ -e "$(getSettingsPath)/snippets/powershell.json" ]]; then
+diff --unified --label reference --label "$(getSettingsPath)/snippets/powershell.json" - "$(getSettingsPath)/snippets/powershell.json" <<'END_SNIPPET_POWERSHELL'
+{
+	"Powershell skeleton": {
+		"prefix": "skeleton",
+		"body": [
+			"# powershell -ExecutionPolicy Bypass -File this.ps",
+			"# works as named (-workingDir some/dir) or just in order",
+			"param(",
+			"  # with default",
+			"  [string]\\$workingDir=\"C:\\working\",",
+			"  # default is \\$null",
+			"  [string]\\$targetDir",
+			")",
+			"\\$ErrorActionPreference = \"Stop\""
+		]
+	},
+	"Powershell download": {
+		"prefix": "download",
+		"body": [
+			"\\$webClient = New-Object System.Net.WebClient",
+			"# disable proxy",
+			"\\$webClient.Proxy = \\$null",
+			"\\$webClient.DownloadFile(\\$url, \\$path)"
+		]
+	},
+	"Powershell json data": {
+		"prefix": "json data",
+		"body": [
+			"#\\$fromFile = Get-Content \\$jsonPath | ConvertFrom-Json",
+			"\\$inline = @\"",
+			"{",
+			"    \"prod\": {",
+			"        \"fullname\": \"Production\",",
+			"        \"servers\": [\"server-11377\", \"server-11378\", \"server-11379\"]",
+			"    },",
+			"    \"dev\" : {",
+			"        \"fullname\": \"Development\",",
+			"        \"servers\": [\"server-11853\", \"server-11854\", \"server-11855\"]",
+			"    }",
+			"}",
+			"\"@ | ConvertFrom-Json",
+			"",
+			"Write-Output \\$inline.prod.fullname",
+			"Write-Output \\$inline.prod.servers[0]",
+			"",
+			"foreach (\\$env in @(\"dev\", \"prod\")) {",
+			"    foreach (\\$server in \\$inline.\\$env.servers) {",
+			"        \\$name = \\$inline.\\$env.fullname",
+			"        Write-Output \"\\$name server: \\$server\"",
+			"    }",
+			"}"
+		]
+	},
+	"Powershell run program with arguments": {
+		"prefix": "run-with-arguments",
+		"body": [
+			"& \\$pathToExe @programArgs | Out-Null # or Out-File",
+			"if (\\$LastExitCode -gt 0) { throw \"\\$pathToExe failed with error \\$LastExitCode\" }"
+		]
+	},
+	"Powershell Task wrapper": {
+		"prefix": "task-wrapper",
+		"body": [
+			"function Task ([string]\\$taskName, [scriptblock]\\$content) {",
+			"  \\$startTime = Get-Date",
+			"  Write-Host (\">>> {0} started at {1:u}...\" -f \\$taskName, \\$startTime)",
+			"  &\\$content",
+			"  Write-Host (\"<<< {0} complete after {1:hh':'mm':'ss'.'FFF}\" -f \\$taskName, ((Get-Date) - \\$startTime))",
+			"}"
+		]
+	}
+}
+END_SNIPPET_POWERSHELL
+else
+echo $(getSettingsPath)/snippets/powershell.json is current missing
+fi
+
+if [[ -e "$(getSettingsPath)/snippets/r.json" ]]; then
+diff --unified --label reference --label "$(getSettingsPath)/snippets/r.json" - "$(getSettingsPath)/snippets/r.json" <<'END_SNIPPET_R'
+{
+	"R ggplot skeleton" : {
+		"prefix": "ggplot-skeleton",
+		"body": [
+			"library(tidyverse)",
+			"library(lubridate)",
+			"library(here)",
+			"",
+			"plot <- ggplot(data %>% filter(DATE >= ymd(\"20101010\"), aes(x=DATE, y=VALUE, color=CATEGORY)) + ",
+			"  geom_line() +",
+			"  scale_x_datetime() +",
+			"  scale_y_continuous(labels=scales::percent) +",
+			"  coord_cartesian(ylim=c(0.0, 0.5)) + # zoom (don't use limits as that eliminates data for mean etc.) +",
+			"  labs(",
+			"    title=\"title\",",
+			"    subtitle=\"subtitle\",",
+			"    color=\"the category\",",
+			"    y=\"the value\",",
+			"    x=\"the date\",",
+			")",
+			"print(paste0(\"Writing plot\")",
+			"ggsave(plot=plot, filename=\"plot.png\", path=here::here(\"plots\"), width=10, height=10)",
+			"warnings()"
+		]
+	},
+	"R sqlite skeleton" : {
+		"prefix": "sqlite-skeleton",
+		"body": [
+			"library(DBI)",
+			"library(here)",
+			"",
+			"dataDb <- dbConnect(RSQLite::SQLite(), here::here(\"data.db\"))"
+		]
+	},
+	"R retreive data from sqlite" : {
+		"prefix": "sqlite-retreive",
+		"body": [
+			"tbl(dataDb, sql(paste0(\"select cast(strftime('%s', SOME_TIME_STRING) as real) as SOME_TIME\", \" from x\"))) %>% collect() %>% mutate (SOME_TIME = as_datetime(SOME_TIME))"
+		]
+	},
+	"R store data in sqlite" : {
+		"prefix": "sqlite-store",
+		"body": [
+			"dbExecute(db, paste0(\"drop table if exists \",\"SOME_TABLE\"))",
+			"data <- read_csv(here::here(\"input\", \"data.csv\"), col_types=cols(.default = col_character(), SOME_INT = col_integer())) %>%",
+			"  mutate(START_TS_UNIX=as.numeric(parse_datetime(START_TS, \"%Y-%m-%d %H:%M:%OS\", locale=locale(tz=\"UTC\"))))",
+			"data <- mutate(data, REQUEST_TS = as.numeric(REQUEST_TS))",
+			"dbWriteTable(db, \"SOME_TABLE\", data, append = TRUE)"
+		]
+	}
+}
+END_SNIPPET_R
+else
+echo $(getSettingsPath)/snippets/r.json is current missing
+fi
+
+if [[ -e "$(getSettingsPath)/snippets/shellscript.json" ]]; then
+diff --unified --label reference --label "$(getSettingsPath)/snippets/shellscript.json" - "$(getSettingsPath)/snippets/shellscript.json" <<'END_SNIPPET_SHELL'
+{
+	"Skeleton of a strict bash file": {
+		"prefix": "strict-skeleton",
+		"body": [
+			"#!/bin/bash",
+			"",
+			"set -o errexit",
+			"set -o nounset",
+			"set -o pipefail",
+			"set -o noclobber",
+			"",
+			"# capturing non-zero exit code (for example, grep):",
+			"# cat /tmp/doesnotexist && rc=$? || rc=$?"
+		]
+	},
+	"Date in full": {
+		"prefix": "date-in-full",
+		"body": "date '+%Y%m%d_%H%M%S'"
+	},
+	"Script directory": {
+		"prefix": "script-dir",
+		"body": "SCRIPT_DIR=\"\\$(cd \\$(dirname \"\\$0\"); pwd)\""
+	},
+	"SQLite input/output functions": {
+		"prefix": "sqlite-inout",
+		"body": [
+			"# doImport sourceFile targetTable [targetDbFile (default data.db)]",
+			"#   imports the tab-delimited file into the specified database and table",
+			"#",
+			"doImport () {",
+			"  echo \"\\$1 into \\$2 in \\${3:-data.db}\"",
+			"  sqlite3 \"\\${3:-data.db}\" <<END",
+			".mode tabs",
+			".import \"\\$1\" \"\\$2\"",
+			"END",
+			"}",
+			"# doImportCSV sourceFile targetTable [targetDbFile (default data.db)]",
+			"#   imports the csv file into the specified database and table",
+			"#",
+			"doImportCSV () {",
+			"  echo \"\\$1 into \\$2 in \\${3:-data.db}\"",
+			"  sqlite3 \"\\${3:-data.db}\" <<END",
+			".mode csv",
+			".import \"\\$1\" \"\\$2\"",
+			"END",
+			"}",
+			"# doExport targetFile sourceTable [sourceDbFile (default data.db)]",
+			"#   exports the specified database and table into the tab-delimited file",
+			"#",
+			"doExport () {",
+			"  echo \"\\$2 from \\${3:-data.db} into \\$1\"",
+			"  sqlite3 \"\\${3:-data.db}\" <<END",
+			".mode tabs",
+			".output \\$1",
+			"select * from \\$2;",
+			"END",
+			"}"
+		]
+	}
+}
+END_SNIPPET_SHELL
+else
+echo $(getSettingsPath)/snippets/shellscript.json is current missing
+fi
+
+diff --unified --label reference --label "actual" - <( jq --sort-keys . "$(getSettingsPath)/settings.json" ) <<'END_SNIPPET_SETTINGS'
+{
+    "explorer.confirmDragAndDrop": false,
+    "workbench.colorTheme": "Base16 Light Summerfruit",
+    "workbench.startupEditor": "newUntitledFile"
+}END_SNIPPET_SETTINGS
+
+diff --unified --label reference --label "actual" - <( jq --raw-output ". | .[].identifier.id" "$(getExtensionsPath)/extensions.json" | sort ) <<'END_EXTENSIONS_LIST'
+bierner.markdown-mermaid
+daylerees.rainglow
+dotjoshjohnson.xml
+medo64.render-crlf
+mhutchie.git-graph
+redhat.vscode-yaml
+END_EXTENSIONS_LIST
+
