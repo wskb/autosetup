@@ -231,7 +231,7 @@ else
 echo $(getSettingsPath)/snippets/shellscript.json is current missing
 fi
 
-diff --unified --label reference --label "actual" - <( jq --sort-keys . "$(getSettingsPath)/settings.json" ) <<'END_SNIPPET_SETTINGS'
+diff --unified --label reference --label "actual" - <( jq --sort-keys --indent 4 . "$(getSettingsPath)/settings.json" ) <<'END_SNIPPET_SETTINGS'
 {
     "explorer.confirmDragAndDrop": false,
     "files.watcherExclude": {
