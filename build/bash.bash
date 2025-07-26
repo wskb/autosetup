@@ -24,3 +24,6 @@ cp "$SCRIPT_DIR/../content/install/bash-prefix.bash" "$DEST/bash-setup"
 
 copy_folder_to_file '$HOME/.bashrc.wskb' 'END_BASHRC_WSKB' "$SCRIPT_DIR/../content/bash" "$DEST/bash-setup"
 copy_folder_to_file '$HOME/.inputrc' 'END_INPUTRC' "$SCRIPT_DIR/../content/inputrc" "$DEST/bash-setup"
+
+echo >> "$DEST/bash-setup"
+echo '. $HOME/.bashrc' >> "$DEST/bash-setup"
