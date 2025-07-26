@@ -44,7 +44,7 @@ echo >> "$DEST/vscode-diff"
 diff_file "$DEST/vscode-diff" 'END_SNIPPET_SHELL' "$SCRIPT_DIR/../content/vscode/snippets/shellscript.json" '$(getSettingsPath)/snippets/shellscript.json'
 echo >> "$DEST/vscode-diff"
 
-diff_process "$DEST/vscode-diff" 'END_SNIPPET_SETTINGS' "$SCRIPT_DIR/../content/vscode/settings.json" '<( jq --sort-keys '.' "$(getSettingsPath)/settings.json" )'
+diff_process "$DEST/vscode-diff" 'END_SNIPPET_SETTINGS' "$SCRIPT_DIR/../content/vscode/settings.json" '<( jq --sort-keys --indent 4 '.' "$(getSettingsPath)/settings.json" )'
 echo >> "$DEST/vscode-diff"
 diff_process "$DEST/vscode-diff" 'END_EXTENSIONS_LIST' "$SCRIPT_DIR/../content/vscode/extensions.txt" '<( jq --raw-output ". | .[].identifier.id" "$(getExtensionsPath)/extensions.json" | sort )'
 echo >> "$DEST/vscode-diff"
