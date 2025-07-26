@@ -1,5 +1,11 @@
 {
     "explorer.confirmDragAndDrop": false,
-    "workbench.colorTheme": "Base16 Light Summerfruit",
+    "files.watcherExclude": {
+        "**/.angular/**": true,
+        "**/node_modules/*/**": true
+    },
+    "git.confirmSync": false,
+    "git.suggestSmartCommit": false,
+    "workbench.colorTheme": "Snappy Contrast (rainglow)",
     "workbench.startupEditor": "newUntitledFile"
 }
