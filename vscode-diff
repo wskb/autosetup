@@ -234,9 +234,16 @@ fi
 diff --unified --label reference --label "actual" - <( jq --sort-keys . "$(getSettingsPath)/settings.json" ) <<'END_SNIPPET_SETTINGS'
 {
     "explorer.confirmDragAndDrop": false,
-    "workbench.colorTheme": "Base16 Light Summerfruit",
+    "files.watcherExclude": {
+        "**/.angular/**": true,
+        "**/node_modules/*/**": true
+    },
+    "git.confirmSync": false,
+    "git.suggestSmartCommit": false,
+    "workbench.colorTheme": "Snappy Contrast (rainglow)",
     "workbench.startupEditor": "newUntitledFile"
-}END_SNIPPET_SETTINGS
+}
+END_SNIPPET_SETTINGS
 
 diff --unified --label reference --label "actual" - <( jq --raw-output ". | .[].identifier.id" "$(getExtensionsPath)/extensions.json" | sort ) <<'END_EXTENSIONS_LIST'
 bierner.markdown-mermaid

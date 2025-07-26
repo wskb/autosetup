@@ -276,3 +276,5 @@ set completion-ignore-case on
 set show-all-if-ambiguous on
 set completion-query-items 250
 END_INPUTRC
+
+. $HOME/.bashrc
