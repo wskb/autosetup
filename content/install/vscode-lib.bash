@@ -1,4 +1,8 @@
 
+set -o errexit
+set -o nounset
+set -o pipefail
+
 getSettingsPath () {
     if [[ $(uname) == *Darwin* ]]; then
         echo "$HOME/Library/Application Support/Code/User"
