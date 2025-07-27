@@ -32,8 +32,13 @@ checkForJq () {
 
 checkForJq
 
-if [[ -e "$(getSettingsPath)/snippets/powershell.json" ]]; then
-diff --unified --label reference --label "$(getSettingsPath)/snippets/powershell.json" - "$(getSettingsPath)/snippets/powershell.json" <<'END_SNIPPET_POWERSHELL'
+archiveDir="/tmp/wskb-vscode-apply-$$"
+mkdir "$archiveDir"
+echo "Archive dir is $archiveDir"
+
+if [[ -e "$(getSettingsPath)/snippets/powershell.json" ]]; then cp "$(getSettingsPath)/snippets/powershell.json" "$archiveDir"; fi
+echo "Replacing $(getSettingsPath)/snippets/powershell.json"
+cat <<'END_SNIPPET_POWERSHELL' > "$(getSettingsPath)/snippets/powershell.json"
 {
 	"Powershell skeleton": {
 		"prefix": "skeleton",
@@ -106,12 +111,10 @@ diff --unified --label reference --label "$(getSettingsPath)/snippets/powershell
 	}
 }
 END_SNIPPET_POWERSHELL
-else
-echo $(getSettingsPath)/snippets/powershell.json is currently missing
-fi
 
-if [[ -e "$(getSettingsPath)/snippets/r.json" ]]; then
-diff --unified --label reference --label "$(getSettingsPath)/snippets/r.json" - "$(getSettingsPath)/snippets/r.json" <<'END_SNIPPET_R'
+if [[ -e "$(getSettingsPath)/snippets/r.json" ]]; then cp "$(getSettingsPath)/snippets/r.json" "$archiveDir"; fi
+echo "Replacing $(getSettingsPath)/snippets/r.json"
+cat <<'END_SNIPPET_R' > "$(getSettingsPath)/snippets/r.json"
 {
 	"R ggplot skeleton" : {
 		"prefix": "ggplot-skeleton",
@@ -164,12 +167,10 @@ diff --unified --label reference --label "$(getSettingsPath)/snippets/r.json" - 
 	}
 }
 END_SNIPPET_R
-else
-echo $(getSettingsPath)/snippets/r.json is currently missing
-fi
 
-if [[ -e "$(getSettingsPath)/snippets/shellscript.json" ]]; then
-diff --unified --label reference --label "$(getSettingsPath)/snippets/shellscript.json" - "$(getSettingsPath)/snippets/shellscript.json" <<'END_SNIPPET_SHELL'
+if [[ -e "$(getSettingsPath)/snippets/shellscript.json" ]]; then cp "$(getSettingsPath)/snippets/shellscript.json" "$archiveDir"; fi
+echo "Replacing $(getSettingsPath)/snippets/shellscript.json"
+cat <<'END_SNIPPET_SHELL' > "$(getSettingsPath)/snippets/shellscript.json"
 {
 	"Skeleton of a strict bash file": {
 		"prefix": "strict-skeleton",
@@ -231,11 +232,11 @@ diff --unified --label reference --label "$(getSettingsPath)/snippets/shellscrip
 	}
 }
 END_SNIPPET_SHELL
-else
-echo $(getSettingsPath)/snippets/shellscript.json is currently missing
-fi
 
-diff --unified --label reference --label "actual" - <( jq --sort-keys --indent 4 . "$(getSettingsPath)/settings.json" ) <<'END_SNIPPET_SETTINGS'
+if [[ ! -e "$(getSettingsPath)/settings.json" ]]; then echo '{}' > "$(getSettingsPath)/settings.json"; fi
+cp "$(getSettingsPath)/settings.json" "$archiveDir"
+echo "Updating $(getSettingsPath)/settings.json"
+jq -s --sort-keys --indent 4 '.[0] * .[1]' "${archiveDir}/settings.json" - <<'END_SNIPPET_SETTINGS' > "$(getSettingsPath)/settings.json"
 {
     "explorer.confirmDragAndDrop": false,
     "files.watcherExclude": {
@@ -249,12 +250,14 @@ diff --unified --label reference --label "actual" - <( jq --sort-keys --indent 4
 }
 END_SNIPPET_SETTINGS
 
-diff --unified --label reference --label "actual" - <( jq --raw-output ". | .[].identifier.id" "$(getExtensionsPath)/extensions.json" | sort ) <<'END_EXTENSIONS_LIST'
-bierner.markdown-mermaid
-daylerees.rainglow
-dotjoshjohnson.xml
-medo64.render-crlf
-mhutchie.git-graph
-redhat.vscode-yaml
-END_EXTENSIONS_LIST
-
+echo "Installing missing extensions, if any"
+jq --raw-output -s '.[1] - .[0] | .[]' <( jq '[. | .[].identifier.id] | sort' "$(getExtensionsPath)/extensions.json" ) - <<'END_EXTENSIONS_ARRAY' | xargs --verbose -L 1 -- code --install-extension
+[
+  "bierner.markdown-mermaid",
+  "daylerees.rainglow",
+  "dotjoshjohnson.xml",
+  "medo64.render-crlf",
+  "mhutchie.git-graph",
+  "redhat.vscode-yaml"
+]
+END_EXTENSIONS_ARRAY
